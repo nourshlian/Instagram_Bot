@@ -1,5 +1,8 @@
 from selenium import webdriver
 from time import sleep
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 driver_path = "C:\\Users\\Nour\\Desktop\\work\\InstagramBot\\chromedriver.exe"
 brave_path = "C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"
@@ -15,11 +18,19 @@ class InstagramBot:
 
     def login(self, username, password):
         sleep(2)
+        #self.browser.maximize_window()
         self.username = username
         self.password = password
-        self.browser.find_element_by_xpath('//*[@id="loginForm"]/div/div[1]/div/label/input').send_keys(username)
-        self.browser.find_element_by_xpath('//*[@id="loginForm"]/div/div[2]/div/label/input').send_keys(password)
-        self.browser.find_element_by_xpath('//*[@id="loginForm"]/div/div[3]').click()
+        # username field
+        username_field = self.browser.find_element_by_xpath('//*[@id="loginForm"]/div/div[1]/div/label/input')
+        username_field.send_keys(username)
+
+        password_field = self.browser.find_element_by_xpath('//*[@id="loginForm"]/div/div[2]/div/label/input')
+        password_field.send_keys(password)
+
+        login_butten = self.browser.find_element_by_xpath('//*[@id="loginForm"]/div/div[3]')
+        login_butten.click()
+
         sleep(3)
         # Do not save login info
         self.browser.find_element_by_xpath('//*[@id="react-root"]/section/main/div/div/div/div/button').click()
@@ -31,7 +42,8 @@ class InstagramBot:
     def get_followers(self):
         sleep(2)
         try:
-            self.browser.find_element_by_xpath('//*[@id="react-root"]/section/main/div/header/section/ul/li[2]/a').click()
+            self.browser.find_element_by_xpath(
+                '//*[@id="react-root"]/section/main/div/header/section/ul/li[2]/a').click()
             sleep(2)
             scroll_box = self.browser.find_element_by_xpath('/html/body/div[4]/div/div/div[2]')
             followers = self._get_names(scroll_box)
@@ -46,7 +58,8 @@ class InstagramBot:
     def get_following(self):
         sleep(2)
         try:
-            self.browser.find_element_by_xpath('//*[@id="react-root"]/section/main/div/header/section/ul/li[3]/a').click()
+            self.browser.find_element_by_xpath(
+                '//*[@id="react-root"]/section/main/div/header/section/ul/li[3]/a').click()
             sleep(2)
             scroll_box = self.browser.find_element_by_xpath('/html/body/div[4]/div/div/div[2]')
             following = self._get_names(scroll_box)
@@ -72,9 +85,9 @@ class InstagramBot:
         names = [name.text for name in links if name.text != '']
         return names
 
-    def _follow_steam(self,accounts):
+    def _follow_steam(self, accounts):
         sleep(2)
-        #followers = self.get_followers()
+        # followers = self.get_followers()
         for account in accounts:
             self.browser.get("https://www.instagram.com/{}".format(account))
             sleep(1)
@@ -103,10 +116,20 @@ class InstagramBot:
 
         return accounts
 
+    # def wait_for(self, xpath):
+    #     element = None
+    #     ret = None
+    #     try:
+    #         element = WebDriverWait(self.browser, 10).until(EC.presence_of_element_located(By.XPATH, xpath))
+    #         ret = self.browser.find_element_by_xpath(xpath)
+    #     except:
+    #         print("An error occurs in waiting for page load")
+    #     return ret
+
 
 if __name__ == '__main__':
     bot = InstagramBot()
-    bot.login("ig_b_re", password)
+    bot.login("ig_b_re", "Aa123456")
     # followers = bot.get_followers()
     # following = bot.get_following()
     # print("number of followers = ", len(followers), "\n number of following = ", len(following))
