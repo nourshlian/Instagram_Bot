@@ -3,25 +3,31 @@ from time import sleep
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
+import autoit
+import os
 
-driver_path = "C:\\Users\\Nour\\Desktop\\work\\InstagramBot\\chromedriver.exe"
+driver_path = "C:\\Users\\Nour\\Desktop\\work\\Instagram_Bot\\chromedriver.exe"
 brave_path = "C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"
 chrome = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
 
 
 
 class InstagramBot:
-    def __init__(self):
-        self.username = None
-        self.password = None
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
         self.option = webdriver.ChromeOptions()
-        self.option.binary_location = brave_path
+        self.option.binary_location = chrome
         self.option.add_argument("--incognito")
+        # mobile_emulation = {"deviceName": "Pixel 2"}
+        # self.option.add_experimental_option("mobileEmulation", mobile_emulation)
         self.browser = webdriver.Chrome(executable_path=driver_path, chrome_options=self.option)
         self.browser.get("https://www.instagram.com")
 
 
-    def login(self, username, password):
+
+    def login(self):
         # self.browser.maximize_window()
         # element paths with XPATH
         username_field_path = '//*[@id="loginForm"]/div/div[1]/div/label/input'
@@ -30,16 +36,12 @@ class InstagramBot:
         dont_save_pass_path = '//*[@id="react-root"]/section/main/div/div/div/div/button'
         no_notifcation_path = '/html/body/div[4]/div/div/div/div[3]/button[2]'
 
-
-        self.username = username
-        self.password = password
-
         # username field
         username_field = self.wait_for(username_field_path)
-        username_field.send_keys(username)
+        username_field.send_keys(self.username)
 
         password_field = self.wait_for(password_field_path)
-        password_field.send_keys(password)
+        password_field.send_keys(self.password)
 
         login_butten = self.wait_for(login_butten_path)
         login_butten.click()
@@ -51,7 +53,7 @@ class InstagramBot:
         # Do not turn on notifcation
         no_notifcation = self.wait_for(no_notifcation_path)
         no_notifcation.click()
-        self.browser.get("https://www.instagram.com/{}".format(username))
+        self.browser.get("https://www.instagram.com/{}".format(self.username))
 
     def get_followers(self):
         followers_path = '//*[@id="react-root"]/section/main/div/header/section/ul/li[2]/a'
@@ -137,12 +139,51 @@ class InstagramBot:
             print("An error occurs in waiting for page load")
         return element
 
+    def post_pic(self):
+        login_slct = '//*[@id="react-root"]/section/main/article/div/div/div/div[2]/button'
+        username = '//*[@id="loginForm"]/div[1]/div[3]/div/label/input'
+        password = '//*[@id="loginForm"]/div[1]/div[4]/div/label/input'
+        login_btn = '//*[@id="loginForm"]/div[1]/div[6]/button'
+        not_now = '//*[@id="react-root"]/section/main/div/div/div/button'
+        post_btn = '//*[@id="react-root"]/section/nav[2]/div/div/div[2]/div/div/div[3]'
+        next_btn = '//*[@id="react-root"]/section/div[1]/header/div/div[2]/button'
+        caption_path = '//*[@id="react-root"]/section/div[2]/section[1]/div[1]/textarea'
+        share_btn = '//*[@id="react-root"]/section/div[1]/header/div/div[2]/button'
+
+        image_path = '\\photos\\1.jpg'
+        caption = 'my fisrt photo'
+
+
+        self.browser.quit()
+        mobile_emulation = {"deviceName": "Pixel 2"}
+        self.option.add_experimental_option("mobileEmulation", mobile_emulation)
+        self.browser = webdriver.Chrome(executable_path=driver_path, chrome_options=self.option)
+        self.browser.get("https://www.instagram.com")
+
+        self.wait_for(login_slct).click()
+        self.wait_for(username).send_keys(self.username)
+        self.wait_for(password).send_keys(self.password)
+        self.wait_for(login_btn).click()
+        self.wait_for(not_now).click()
+
+        self.wait_for(post_btn).click()
+        autoit.win_wait_active("Open", 5)
+        autoit.send(os.getcwd()+image_path)
+        autoit.send("{ENTER}")
+
+        self.wait_for(next_btn).click()
+        self.wait_for(caption_path).send_keys(caption)
+        self.wait_for(share_btn).click()
+        
+
 
 if __name__ == '__main__':
-    bot = InstagramBot()
-    bot.login("ig_b_re", "Aa123456")
+    bot = InstagramBot("ig_b_re", "Aa123456")
+    # bot.login()
+    bot.post_pic()
+
     # followers = bot.get_followers()
     # following = bot.get_following()
     # print("number of followers = ", len(followers), "\n number of following = ", len(following))
-    acc = bot.get_accounts()
-    bot._follow_steam(acc)
+    # acc = bot.get_accounts()
+    # bot._follow_steam(followers)
