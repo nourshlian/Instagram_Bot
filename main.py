@@ -12,7 +12,6 @@ brave_path = "C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application
 chrome = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
 
 
-
 class InstagramBot:
     def __init__(self, username, password):
         self.username = username
@@ -24,8 +23,6 @@ class InstagramBot:
         # self.option.add_experimental_option("mobileEmulation", mobile_emulation)
         self.browser = webdriver.Chrome(executable_path=driver_path, chrome_options=self.option)
         self.browser.get("https://www.instagram.com")
-
-
 
     def login(self):
         # self.browser.maximize_window()
@@ -150,9 +147,8 @@ class InstagramBot:
         caption_path = '//*[@id="react-root"]/section/div[2]/section[1]/div[1]/textarea'
         share_btn = '//*[@id="react-root"]/section/div[1]/header/div/div[2]/button'
 
-        image_path = '\\photos\\1.jpg'
-        caption = 'my fisrt photo'
-
+        image_path = '\\photos\\2.jpg'
+        caption = 'hello Instagram'
 
         self.browser.quit()
         mobile_emulation = {"deviceName": "Pixel 2"}
@@ -168,21 +164,47 @@ class InstagramBot:
 
         self.wait_for(post_btn).click()
         autoit.win_wait_active("Open", 5)
-        autoit.send(os.getcwd()+image_path)
+        autoit.send(os.getcwd() + image_path)
         autoit.send("{ENTER}")
 
         self.wait_for(next_btn).click()
         self.wait_for(caption_path).send_keys(caption)
         self.wait_for(share_btn).click()
-        
+
+    def follow_balance(self):
+        followers = self.get_followers()
+        following = self.get_following()
+
+        unfollow_list = []
+        for acc in following:
+            if acc not in followers:
+                unfollow_list.append(acc)
+        self.unfollow(unfollow_list)
+        self.browser.get("https://www.instagram.com/{}".format(self.username))
+
+    def unfollow(self,accounts):
+        allready_followed_btn = '//*[@id="react-root"]/section/main/div/header/section/div[1]/div[1]/div/div[2]/div/span/span[1]/button'
+        unfollow_path = '/html/body/div[4]/div/div/div/div[3]/button[1]'
+
+        for account in accounts:
+            self.browser.get("https://www.instagram.com/{}".format(account))
+            try:
+                self.wait_for(allready_followed_btn).click()
+                self.wait_for(unfollow_path).click()
+            except:
+                print('cannt unfollow {}'.format(account))
+
+
 
 
 if __name__ == '__main__':
     bot = InstagramBot("ig_b_re", "Aa123456")
-    # bot.login()
-    bot.post_pic()
+    bot.login()
+    bot.follow_balance()
 
     # followers = bot.get_followers()
+    # print(followers)
+    # bot.post_pic()
     # following = bot.get_following()
     # print("number of followers = ", len(followers), "\n number of following = ", len(following))
     # acc = bot.get_accounts()
