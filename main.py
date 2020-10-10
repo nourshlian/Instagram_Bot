@@ -1,3 +1,5 @@
+import random
+
 from selenium import webdriver
 from time import sleep
 from selenium.webdriver.common.by import By
@@ -7,7 +9,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 import autoit
 import os
 
-driver_path = "C:\\Users\\Nour\\Desktop\\work\\Instagram_Bot\\chromedriver.exe"
+driver_path = "chromedriver.exe"
 brave_path = "C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"
 chrome = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
 
@@ -194,14 +196,26 @@ class InstagramBot:
             except:
                 print('cannt unfollow {}'.format(account))
 
+    def like_pics(self):
+        self.browser.get("https://www.instagram.com")
 
+        for i in range(1,6):
+            img_path = '//*[@id="react-root"]/section/main/section/div[1]/div[2]/div/article[' + str(i) + ']/div[3]/section[1]/span[1]/button'
+            self.wait_for(img_path).click()
+            wait = random.random() * 10
+            sleep(wait)
 
 
 if __name__ == '__main__':
     bot = InstagramBot("ig_b_re", "Aa123456")
     bot.login()
-    bot.follow_balance()
+    #bot.like_stream()
+    bot.like_pics()
 
+
+
+
+    #bot.follow_balance()
     # followers = bot.get_followers()
     # print(followers)
     # bot.post_pic()
