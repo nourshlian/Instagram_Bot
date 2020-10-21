@@ -8,22 +8,21 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 import autoit
 import os
-
-driver_path = "chromedriver.exe"
-brave_path = "C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"
-chrome = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+import config as conf
 
 
 class InstagramBot:
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
+    def __init__(self):
+        self.username = conf.USERNAME
+        self.password = conf.PASSWORD
+        self.option = None
+        self.browser = None
+
+    def config_driver(self):
         self.option = webdriver.ChromeOptions()
-        self.option.binary_location = chrome
+        self.option.binary_location = conf.CHROME_PATH
         self.option.add_argument("--incognito")
-        # mobile_emulation = {"deviceName": "Pixel 2"}
-        # self.option.add_experimental_option("mobileEmulation", mobile_emulation)
-        self.browser = webdriver.Chrome(executable_path=driver_path, chrome_options=self.option)
+        self.browser = webdriver.Chrome(executable_path=conf.DRIVER_PATH, chrome_options=self.option)
         self.browser.get("https://www.instagram.com")
 
     def login(self):
@@ -51,6 +50,7 @@ class InstagramBot:
 
         # Do not turn on notifcation
         no_notifcation = self.wait_for(no_notifcation_path)
+
         no_notifcation.click()
         self.browser.get("https://www.instagram.com/{}".format(self.username))
 
@@ -149,29 +149,43 @@ class InstagramBot:
         caption_path = '//*[@id="react-root"]/section/div[2]/section[1]/div[1]/textarea'
         share_btn = '//*[@id="react-root"]/section/div[1]/header/div/div[2]/button'
 
-        image_path = '\\photos\\2.jpg'
-        caption = 'hello Instagram'
+        image_path = conf.IMAGE_PATH
+        caption = conf.CAPTION
 
-        self.browser.quit()
-        mobile_emulation = {"deviceName": "Pixel 2"}
-        self.option.add_experimental_option("mobileEmulation", mobile_emulation)
-        self.browser = webdriver.Chrome(executable_path=driver_path, chrome_options=self.option)
-        self.browser.get("https://www.instagram.com")
+        # self.browser.quit()
+        # mobile_emulation = {"deviceName": "Pixel 2"}
+        # self.option.add_experimental_option("mobileEmulation", mobile_emulation)
+        # self.browser = webdriver.Chrome(executable_path=conf.DRIVER_PATH, chrome_options=self.option)
+        # self.browser.get("https://www.instagram.com")
+        mob_bot = self.open_mob_browser()
 
-        self.wait_for(login_slct).click()
-        self.wait_for(username).send_keys(self.username)
-        self.wait_for(password).send_keys(self.password)
-        self.wait_for(login_btn).click()
-        self.wait_for(not_now).click()
+        mob_bot.wait_for(login_slct).click()
+        mob_bot.wait_for(username).send_keys(self.username)
+        mob_bot.wait_for(password).send_keys(self.password)
+        mob_bot.wait_for(login_btn).click()
+        mob_bot.wait_for(not_now).click()
 
-        self.wait_for(post_btn).click()
+        mob_bot.wait_for(post_btn).click()
         autoit.win_wait_active("Open", 5)
         autoit.send(os.getcwd() + image_path)
         autoit.send("{ENTER}")
 
-        self.wait_for(next_btn).click()
-        self.wait_for(caption_path).send_keys(caption)
-        self.wait_for(share_btn).click()
+        mob_bot.wait_for(next_btn).click()
+        mob_bot.wait_for(caption_path).send_keys(caption)
+        mob_bot.wait_for(share_btn).click()
+        sleep(10)
+        mob_bot.browser.quit()
+
+    def open_mob_browser(self):
+        mob_bot = InstagramBot()
+        mob_bot.option = webdriver.ChromeOptions()
+        mob_bot.option.binary_location = conf.CHROME_PATH
+        mobile_emulation = {"deviceName": "Pixel 2"}
+        mob_bot.option.add_experimental_option("mobileEmulation", mobile_emulation)
+        mob_bot.option.add_argument("--incognito")
+        mob_bot.browser = webdriver.Chrome(executable_path=conf.DRIVER_PATH, chrome_options=mob_bot.option)
+        mob_bot.browser.get("https://www.instagram.com")
+        return mob_bot
 
     def follow_balance(self):
         followers = self.get_followers()
@@ -184,7 +198,7 @@ class InstagramBot:
         self.unfollow(unfollow_list)
         self.browser.get("https://www.instagram.com/{}".format(self.username))
 
-    def unfollow(self,accounts):
+    def unfollow(self, accounts):
         allready_followed_btn = '//*[@id="react-root"]/section/main/div/header/section/div[1]/div[1]/div/div[2]/div/span/span[1]/button'
         unfollow_path = '/html/body/div[4]/div/div/div/div[3]/button[1]'
 
@@ -199,26 +213,31 @@ class InstagramBot:
     def like_pics(self):
         self.browser.get("https://www.instagram.com")
 
-        for i in range(1,6):
-            img_path = '//*[@id="react-root"]/section/main/section/div[1]/div[2]/div/article[' + str(i) + ']/div[3]/section[1]/span[1]/button'
+        for i in range(1, 6):
+            img_path = '//*[@id="react-root"]/section/main/section/div[1]/div[2]/div/article[' + str(
+                i) + ']/div[3]/section[1]/span[1]/button'
             self.wait_for(img_path).click()
             wait = random.random() * 10
             sleep(wait)
 
 
 if __name__ == '__main__':
-    bot = InstagramBot("ig_b_re", "Aa123456")
+    bot = InstagramBot()
+    bot.config_driver()
     bot.login()
-    #bot.like_stream()
+    bot.post_pic()
     bot.like_pics()
 
+    
+    # bot.get_followers()
+    # bot.like_stream()
 
 
 
-    #bot.follow_balance()
+    # bot.follow_balance()
     # followers = bot.get_followers()
     # print(followers)
-    # bot.post_pic()
+    #
     # following = bot.get_following()
     # print("number of followers = ", len(followers), "\n number of following = ", len(following))
     # acc = bot.get_accounts()
