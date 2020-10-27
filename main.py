@@ -3,6 +3,7 @@ import random
 from selenium import webdriver
 from time import sleep
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
@@ -220,20 +221,53 @@ class InstagramBot:
             wait = random.random() * 10
             sleep(wait)
 
+    def hashtag_search(self):
+        search_bar = '//*[@id="react-root"]/section/nav/div[2]/div/div/div[2]/input'
+        top_posts = '//*[@id="react-root"]/section/main/article/div[1]/div/div/div[1]//*[a]'
+        like_btn = '/html/body/div[4]/div[2]/div/article/div[3]/section[1]/span[1]/button'
+        close_btn = '/html/body/div[4]/div[3]'
+
+        for topic in conf.SEARCH:
+            self.browser.get('https://www.instagram.com')
+            search = self.wait_for(search_bar)
+            search.send_keys(topic)
+            sleep(2)
+            search.send_keys(Keys.RETURN)
+            search.send_keys(Keys.RETURN)
+            ar = self.collect_articles()
+
+            # top = self.browser.find_element_by_xpath('//*[@id="react-root"]/section/main/article/div[1]/div/div/div[1]')
+            # ar = top.find_elements_by_xpath('//*[@id="react-root"]/section/main/article/div[1]/div/div/div[1]//*[a]')
+            for a in ar:
+                a.click()
+                self.wait_for(like_btn).click()
+                sleep(2)
+                self.wait_for(close_btn).click()
+
+    def collect_articles(self):
+        elements = []
+        for i in range(1,2):
+            path = '//*[@id="react-root"]/section/main/article/div[1]/div/div/div[' + str(i) + ']//*[a]'
+            try:
+                tmp = WebDriverWait(self.browser, 10).until(EC.presence_of_all_elements_located((By.XPATH, path)))
+                if tmp is not None:
+                    elements.extend(tmp)
+            except:
+                print("there are no photos !!")
+
+        return elements
+
 
 if __name__ == '__main__':
     bot = InstagramBot()
     bot.config_driver()
     bot.login()
-    bot.post_pic()
-    bot.like_pics()
+    bot.hashtag_search()
 
-    
+    # bot.post_pic()
+    # bot.like_pics()
     # bot.get_followers()
     # bot.like_stream()
-
-
-
     # bot.follow_balance()
     # followers = bot.get_followers()
     # print(followers)
