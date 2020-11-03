@@ -7,4 +7,4 @@ PASSWORD = "Aa123456"
 IMAGE_PATH = "\\photos\\3.jpg"
 CAPTION = "I like it"
 
-SEARCH = ["#airplane","#covid19"]
+SEARCH = ["#codeing","#programming"]

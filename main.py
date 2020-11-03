@@ -53,6 +53,7 @@ class InstagramBot:
         no_notifcation = self.wait_for(no_notifcation_path)
 
         no_notifcation.click()
+        self.random_wait(10)
         self.browser.get("https://www.instagram.com/{}".format(self.username))
 
     def get_followers(self):
@@ -109,6 +110,7 @@ class InstagramBot:
 
         for account in accounts:
             self.browser.get("https://www.instagram.com/{}".format(account))
+            self.random_wait(20)
             try:
                 self.wait_for(follow_back_path).click()
             except:
@@ -124,6 +126,7 @@ class InstagramBot:
         accounts = []
         accounts.extend(followers)
         for follower in followers:
+            self.random_wait(15)
             self.browser.get("https://www.instagram.com/{}".format(follower))
             follower_followers = self.get_followers()
             if follower_followers is not None:
@@ -172,6 +175,7 @@ class InstagramBot:
         autoit.send("{ENTER}")
 
         mob_bot.wait_for(next_btn).click()
+        self.random_wait(5)
         mob_bot.wait_for(caption_path).send_keys(caption)
         mob_bot.wait_for(share_btn).click()
         sleep(10)
@@ -204,6 +208,7 @@ class InstagramBot:
         unfollow_path = '/html/body/div[4]/div/div/div/div[3]/button[1]'
 
         for account in accounts:
+            self.random_wait(15)
             self.browser.get("https://www.instagram.com/{}".format(account))
             try:
                 self.wait_for(allready_followed_btn).click()
@@ -218,14 +223,12 @@ class InstagramBot:
             img_path = '//*[@id="react-root"]/section/main/section/div[1]/div[2]/div/article[' + str(
                 i) + ']/div[3]/section[1]/span[1]/button'
             self.wait_for(img_path).click()
-            wait = random.random() * 10
-            sleep(wait)
+            self.random_wait(10)
 
     def hashtag_search(self):
         search_bar = '//*[@id="react-root"]/section/nav/div[2]/div/div/div[2]/input'
-        top_posts = '//*[@id="react-root"]/section/main/article/div[1]/div/div/div[1]//*[a]'
-        like_btn = '/html/body/div[4]/div[2]/div/article/div[3]/section[1]/span[1]/button'
-        close_btn = '/html/body/div[4]/div[3]'
+        follow_btn = '/html/body/div[5]/div[2]/div/article/header/div[2]/div[1]/div[2]/button'
+        close_btn = '/html/body/div[5]/div[3]/button'
 
         for topic in conf.SEARCH:
             self.browser.get('https://www.instagram.com')
@@ -239,9 +242,17 @@ class InstagramBot:
             # top = self.browser.find_element_by_xpath('//*[@id="react-root"]/section/main/article/div[1]/div/div/div[1]')
             # ar = top.find_elements_by_xpath('//*[@id="react-root"]/section/main/article/div[1]/div/div/div[1]//*[a]')
             for a in ar:
+                self.random_wait(15)
                 a.click()
-                self.wait_for(like_btn).click()
-                sleep(2)
+                try:
+                    follow = self.wait_for(follow_btn)
+                    self.random_wait(15)
+                    if follow.text == 'Follow':
+                        follow.click()
+
+                except:
+                    print('unable to follow poster')
+
                 self.wait_for(close_btn).click()
 
     def collect_articles(self):
@@ -257,12 +268,17 @@ class InstagramBot:
 
         return elements
 
+    def random_wait(self,x):
+        wait = random.randint(1,x)
+        sleep(wait)
 
 if __name__ == '__main__':
     bot = InstagramBot()
     bot.config_driver()
     bot.login()
     bot.hashtag_search()
+    sleep(10)
+    bot.browser.quit()
 
     # bot.post_pic()
     # bot.like_pics()
