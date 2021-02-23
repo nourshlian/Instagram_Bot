@@ -46,19 +46,25 @@ class InstagramBot:
         login_butten.click()
 
         # Do not save login info
-        login_save_pass = self.wait_for(dont_save_pass_path)
-        login_save_pass.click()
+        try:
+            login_save_pass = self.wait_for(dont_save_pass_path)
+            login_save_pass.click()
+        except:
+            pass
+        try:
+            # Do not turn on notifcation
+            no_notifcation = self.wait_for(no_notifcation_path)
+            no_notifcation.click()
+        except:
+            pass
 
-        # Do not turn on notifcation
-        no_notifcation = self.wait_for(no_notifcation_path)
-
-        no_notifcation.click()
         self.random_wait(10)
         self.browser.get("https://www.instagram.com/{}".format(self.username))
 
     def get_followers(self):
         followers_path = '//*[@id="react-root"]/section/main/div/header/section/ul/li[2]/a'
         scroll_box_path = '/html/body/div[4]/div/div/div[2]'
+        # scroll_box_path = '/html/body/div[5]/div/div/div[2]'
         close_path = '/html/body/div[4]/div/div/div[1]/div/div[2]/button'
 
         try:
@@ -152,23 +158,18 @@ class InstagramBot:
         next_btn = '//*[@id="react-root"]/section/div[1]/header/div/div[2]/button'
         caption_path = '//*[@id="react-root"]/section/div[2]/section[1]/div[1]/textarea'
         share_btn = '//*[@id="react-root"]/section/div[1]/header/div/div[2]/button'
-
         image_path = conf.IMAGE_PATH
         caption = conf.CAPTION
 
-        # self.browser.quit()
-        # mobile_emulation = {"deviceName": "Pixel 2"}
-        # self.option.add_experimental_option("mobileEmulation", mobile_emulation)
-        # self.browser = webdriver.Chrome(executable_path=conf.DRIVER_PATH, chrome_options=self.option)
-        # self.browser.get("https://www.instagram.com")
         mob_bot = self.open_mob_browser()
-
         mob_bot.wait_for(login_slct).click()
         mob_bot.wait_for(username).send_keys(self.username)
         mob_bot.wait_for(password).send_keys(self.password)
         mob_bot.wait_for(login_btn).click()
-        mob_bot.wait_for(not_now).click()
-
+        try:
+            mob_bot.wait_for(not_now).click()
+        except:
+            pass
         mob_bot.wait_for(post_btn).click()
         autoit.win_wait_active("Open", 5)
         autoit.send(os.getcwd() + image_path)
@@ -227,8 +228,9 @@ class InstagramBot:
 
     def hashtag_search(self):
         search_bar = '//*[@id="react-root"]/section/nav/div[2]/div/div/div[2]/input'
-        follow_btn = '/html/body/div[5]/div[2]/div/article/header/div[2]/div[1]/div[2]/button'
-        close_btn = '/html/body/div[5]/div[3]/button'
+        # follow_btn = '/html/body/div[5]/div[2]/div/article/header/div[2]/div[1]/div[2]/button'
+        follow_btn = '/html/body/div[4]/div[2]/div/article/header/div[2]/div[1]/div[2]/button'
+        close_btn = '/html/body/div[4]/div[3]/button'#'/html/body/div[5]/div[3]/button'
 
         for topic in conf.SEARCH:
             self.browser.get('https://www.instagram.com')
@@ -276,18 +278,19 @@ if __name__ == '__main__':
     bot = InstagramBot()
     bot.config_driver()
     bot.login()
-    bot.hashtag_search()
-    sleep(10)
-    bot.browser.quit()
 
-    # bot.post_pic()
-    # bot.like_pics()
     # bot.get_followers()
-    # bot.like_stream()
+    # bot.like_pics()
+    # bot.post_pic()
+    # bot.follow_balance()
+
+
+    bot.hashtag_search()
+
+
     # bot.follow_balance()
     # followers = bot.get_followers()
     # print(followers)
-    #
     # following = bot.get_following()
     # print("number of followers = ", len(followers), "\n number of following = ", len(following))
     # acc = bot.get_accounts()
